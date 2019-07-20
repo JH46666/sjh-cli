@@ -1,0 +1,91 @@
+#!/usr/bin/env node
+
+//核心处理命令行
+const program = require('commander');
+const figlet = require('figlet');
+const versionStr = figlet.textSync('sjh0.0.1', {
+  font: 'Ghost',
+  horizontalLayout: 'default',
+  verticalLayout: 'default'
+});
+const _version = require('../package.json').version;
+const Printer = require('@darkobits/lolcatjs')
+const chalk = require('chalk');
+const ora = require('ora');
+const shell = require('shelljs')
+const inquirer = require('inquirer');
+const json2ts = require('json2ts');
+program.version(Printer.default.fromString(versionStr+"\n 1039460820@qq.com"), '-v --version');
+program.option("-i, --init", "初始化项目🐶");
+if(program.init){
+  console.log('初始化项目🐶')
+}
+program.option('-T, --no-tests', 'ignore test hook')
+const bindHandle = {
+  init(otherParams) {
+    console.log('进入我的执行程序....')
+    inquirer
+      .prompt([
+        {
+          type: "text",
+          name: "文件名",
+          meassage: "请输入文件夹名称"
+        }, {
+          type: "list",
+          name: "js类型",
+          meassage: "请选择语言",
+          choices: ["typescript", "ecmaScript"]
+        }
+      ]).then(ansers => {
+        console.log('获取到用户输入', ansers);
+        const _pwddir = shell.pwd().stdout;
+        const projectPath = `${_pwddir}/${ansers.dirname}`;
+        console.log('用户的全路径', projectPath);
+        // shell.rm('-rf', projectPath);
+        // shell.mkdir(projectPath);
+        const spinner = ora('downloading。。。。 ');
+        spinner.start();
+        download(template, projectPath, {
+          clone: true
+        }, err => {
+          spinner.stop();
+          if (err) {
+            console.log('下载失败')
+          } else {
+            shell.sed('-i', 'yd', ansers.dirname.projectPath+'/package.json')
+            console.log(chalk.green('🚀🛫️项目‘下载成功’'))
+
+          }
+        })
+      }).catch(err => {
+        console.log('启动异常')
+      })
+  },
+  ts2js(otherParams){
+    const yiData = {
+      yideng: "sjh",
+      data:{
+        age: 23
+      }
+    }
+    const jsonContent = JSON.stringify(yiData);
+    let result = json2ts.conver(jsonContent);
+    console.log('result');
+  }
+}
+program.usage("[cmd] <options>")
+  //init 和init不一样
+
+  .arguments("<cmd> [env]")
+  .action(function (cmd, otherParams) {
+    console.log('🍎', cmd)
+    console.log('🍊', otherParams)
+    const handler = bindHandle[cmd];
+    if (typeof handler === 'undefined') {
+      console.log('暂未提供')
+      console.error(chalk.yellow('‘非常遗憾’') + chalk.red(cmd) + chalk.blue())
+    } else {
+      handler();
+    }
+  })
+program.parse(process.argv);
