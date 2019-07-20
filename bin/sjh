@@ -15,6 +15,8 @@ const ora = require('ora');
 const shell = require('shelljs')
 const inquirer = require('inquirer');
 const json2ts = require('json2ts');
+const download = require('download-git-repo');
+const template = 'direct:https://github.com/lgwebdream/gulp-website.git';
 program.version(Printer.default.fromString(versionStr+"\n 1039460820@qq.com"), '-v --version');
 program.option("-i, --init", "初始化项目🐶");
 if(program.init){
@@ -28,11 +30,11 @@ const bindHandle = {
       .prompt([
         {
           type: "text",
-          name: "文件名",
+          name: "dirname",
           meassage: "请输入文件夹名称"
         }, {
           type: "list",
-          name: "js类型",
+          name: "jstype",
           meassage: "请选择语言",
           choices: ["typescript", "ecmaScript"]
         }
@@ -41,27 +43,28 @@ const bindHandle = {
         const _pwddir = shell.pwd().stdout;
         const projectPath = `${_pwddir}/${ansers.dirname}`;
         console.log('用户的全路径', projectPath);
-        // shell.rm('-rf', projectPath);
-        // shell.mkdir(projectPath);
+        console.log('用户的全路径', ansers);
+        shell.rm('-rf', projectPath);
+        shell.mkdir(projectPath);
         const spinner = ora('downloading。。。。 ');
         spinner.start();
         download(template, projectPath, {
           clone: true
         }, err => {
+          console.log('err: ', err);
           spinner.stop();
           if (err) {
             console.log('下载失败')
           } else {
-            shell.sed('-i', 'yd', ansers.dirname.projectPath+'/package.json')
+            shell.sed('-i', 'yd', ansers.dirname,projectPath+'/package.json')
             console.log(chalk.green('🚀🛫️项目‘下载成功’'))
-
           }
         })
       }).catch(err => {
         console.log('启动异常')
       })
   },
-  ts2js(otherParams){
+  js2ts(otherParams){
     const yiData = {
       yideng: "sjh",
       data:{
@@ -69,8 +72,9 @@ const bindHandle = {
       }
     }
     const jsonContent = JSON.stringify(yiData);
-    let result = json2ts.conver(jsonContent);
-    console.log('result');
+    console.log('json2ts: ', json2ts);
+    let result = json2ts.convert(jsonContent);
+    console.log('result', result);
   }
 }
 program.usage("[cmd] <options>")
